@@ -1,0 +1,44 @@
+# Build artifacts
+build/
+*.o
+*.a
+*.so
+*.so.*
+*.elf
+*.bin
+*.img
+*.dtb
+*.dts~
+
+# Cross-compilation
+.toolchain/
+sysroot/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# QEMU
+*.qcow2
+*.qcow
+*.img.qemu
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Dependencies
+third-party/build/
+
+# Logs
+*.log
+/var/log/
+
+# Temporary
+*.tmp
+*.bak
