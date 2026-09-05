@@ -1,296 +1,408 @@
-# ABINSTEIN OS Build System
+# ABINSTEIN OS BUILD GUIDE
 
-## Overview
+## Quick Start (5 minutes)
 
-ABINSTEIN OS uses CMake for its build system, with shell scripts for orchestration.
-
-## Prerequisites
-
-### Host Requirements
-- Linux system (Ubuntu 20.04+ recommended)
-- CMake 3.20+
-- Make or Ninja
-- git
-- curl/wget
-
-### ARM64 Cross-Compilation
-- gcc-aarch64-linux-gnu
-- g++-aarch64-linux-gnu
-- binutils-aarch64-linux-gnu
-- linux-headers-arm64
-
-### Installation (Ubuntu/Debian)
+### 1. Install Dependencies
 
 ```bash
-sudo apt update
-sudo apt install -y \
-    cmake \
-    make \
-    git \
-    gcc-aarch64-linux-gnu \
-    g++-aarch64-linux-gnu \
-    binutils-aarch64-linux-gnu \
-    linux-headers-arm64 \
-    qemu-system-arm64
+cd abinstein-os
+sudo bash scripts/install-deps.sh
 ```
 
-## Build Directory Structure
+This installs:
+- `gcc-aarch64-linux-gnu` - ARM64 cross-compiler
+- `qemu-system-arm` - ARM64 emulator
+- All build tools (make, cmake, git, curl, wget, tar, etc.)
 
-```
-abinstein-os/
-├── build/               # Build output (generated)
-│   ├── CMakeCache.txt
-│   ├── CMakeFiles/
-│   ├── kernel/
-│   ├── rootfs/
-│   ├── images/
-│   └── bin/             # Built executables
-├── sysroot/            # ARM64 sysroot (generated)
-└── ...
-```
-
-## Build Targets
-
-### 1. QEMU ARM64 Complete Build
+### 2. Build and Boot in QEMU
 
 ```bash
 ./build_os.sh qemu
 ```
 
-This target:
-1. Builds ARM64 cross-compilation toolchain
-2. Configures and builds Linux kernel
-3. Creates initial RAM filesystem
-4. Builds root filesystem
-5. Generates bootable image
-6. Launches QEMU ARM64
-7. Boots the OS
+This will:
+1. Download Linux kernel 6.1.92
+2. Configure it for ARM64 QEMU
+3. Compile kernel
+4. Download and compile BusyBox
+5. Create rootfs with essential utilities
+6. Build initramfs
+7. **Launch QEMU and boot the system**
 
-### 2. Linux Kernel Only
+You should see:
+```
+🌟 ABINSTEIN OS - QUANTUM MOBILE OS 🌟
 
+====================================
+Welcome to ABINSTEIN OS (QEMU ARM64)
+====================================
+
+[INFO] Available commands: ls, cat, echo, mount, ps, top, uname, etc.
+[INFO] Type 'exit' to shutdown system
+
+sh-5.2# _
+```
+
+### 3. Test the System
+
+Try these commands in the shell:
+
+```bash
+# Check system info
+uname -a
+cat /proc/cpuinfo
+cat /proc/meminfo
+ls -la /
+
+# List mounted filesystems
+mount | grep -E 'proc|sys|dev'
+
+# Test BusyBox utilities
+echo "Hello ABINSTEIN OS"
+date
+uptime
+
+# Exit to shutdown
+exit
+```
+
+## Build Targets
+
+### Full Build & Boot (Recommended)
+```bash
+./build_os.sh qemu
+```
+- Compiles everything from scratch
+- Boots in QEMU
+- Takes ~5-10 minutes first time (downloads ~200MB kernel source)
+
+### Build Kernel Only
 ```bash
 ./build_os.sh kernel
 ```
+- Downloads and compiles Linux kernel
+- Output: `build/output/Image`
+- Takes ~3-5 minutes
 
-Configuration:
-- ARM64 generic configuration for QEMU
-- Device tree support
-- Minimal required drivers
-- Debug symbols in development mode
-
-### 3. Root Filesystem
-
+### Build Rootfs Only
 ```bash
 ./build_os.sh rootfs
 ```
+- Creates root filesystem with BusyBox
+- Output: `build/output/rootfs/`
+- Takes ~1-2 minutes
 
-Includes:
-- Base file system hierarchy
-- Core utilities
-- System libraries
-- Configuration files
-- Users and groups
-
-### 4. Initial RAM Filesystem
-
+### Build Initramfs Only
 ```bash
 ./build_os.sh initramfs
 ```
+- Creates compressed initial RAM filesystem
+- Output: `build/output/initramfs.cpio.gz`
+- Takes ~1 minute
 
-Creates early-boot environment with:
-- init program
-- Module loading
-- Rootfs discovery and mounting
-- Error recovery
-
-### 5. Bootable Image
-
+### Boot Existing Build
 ```bash
-./build_os.sh image
+./build_os.sh boot
 ```
+- Skip compilation, just boot existing kernel and initramfs
+- Takes ~5 seconds
 
-Generates:
-- Kernel image
-- Device tree binary
-- Initramfs
-- Boot configuration
-- Complete bootable image
-
-### 6. Samsung Galaxy A20e Target
-
-```bash
-./build_os.sh a20e
-```
-
-**WARNING**: This target is experimental and requires:
-- Device tree for A20e
-- MediaTek-specific drivers
-- Real hardware for testing
-- Bootloader knowledge
-
-### 7. Test Suite
-
-```bash
-./build_os.sh test
-```
-
-Runs:
-- Unit tests
-- Integration tests
-- Boot tests (if applicable)
-
-### 8. Clean Build
-
+### Clean All Build Artifacts
 ```bash
 ./build_os.sh clean
 ```
+- Removes entire `build/` directory
+- Frees ~2GB disk space
 
-Removes all generated artifacts.
-
-## Advanced Options
+## Options
 
 ### Verbose Output
-
 ```bash
 ./build_os.sh qemu --verbose
 ```
 
-Enable detailed build output.
-
-### Debug Build
-
+### Debug Build (with symbols)
 ```bash
 ./build_os.sh kernel --debug
 ```
 
-Include debug symbols and disable optimizations.
+### Check Requirements Only
+```bash
+./build_os.sh --check
+```
 
-## Manual Build Steps
+## System Architecture
 
-For development, you can run individual build phases:
+### Build Process Flow
 
-### 1. Configure CMake
+```
+┌─────────────────────────────────────┐
+│   1. Download Linux Kernel 6.1.92   │ (kernel.org CDN)
+├─────────────────────────────────────┤
+│   2. Configure for ARM64 QEMU       │ (virt platform)
+├─────────────────────────────────────┤
+│   3. Cross-compile with aarch64-gcc │ (parallel jobs)
+├─────────────────────────────────────┤
+│   4. Download BusyBox 1.36.1        │ (busybox.net)
+├─────────────────────────────────────┤
+│   5. Static compile BusyBox         │ (for rootfs)
+├─────────────────────────────────────┤
+│   6. Create Linux directory tree    │ (/bin, /etc, /dev, etc)
+├─────────────────────────────────────┤
+│   7. Create device nodes            │ (/dev/console, /dev/null, etc)
+├─────────────────────────────────────┤
+│   8. Install init script            │ (initramfs/init)
+├─────────────────────────────────────┤
+│   9. Create CPIO archive            │ (compressed initramfs)
+├─────────────────────────────────────┤
+│  10. Boot in QEMU ARM64             │ (kernel + initramfs)
+└─────────────────────────────────────┘
+```
+
+### Output Structure
+
+```
+build/
+├── output/
+│   ├── Image              # Compiled Linux kernel
+│   ├── rootfs/            # Root filesystem directory
+│   └── initramfs.cpio.gz  # Compressed initial RAM filesystem
+├── sources/
+│   ├── linux-6.1.92/      # Linux kernel source
+│   └── busybox-1.36.1/    # BusyBox source
+├── cache/
+│   ├── linux-6.1.92.tar.xz       # Downloaded kernel
+│   └── busybox-1.36.1.tar.bz2    # Downloaded BusyBox
+├── tools/                 # Cross-compilation tools
+├── logs/
+│   ├── kernel-build.log   # Kernel compilation log
+│   └── busybox-build.log  # BusyBox compilation log
+└── build.log              # Main build log
+```
+
+## QEMU Emulation Details
+
+### Launch Command
 
 ```bash
-mkdir -p build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -DABINSTEIN_PLATFORM=qemu \
-      ..
+qemu-system-aarch64 \
+  -machine virt \
+  -cpu cortex-a53 \
+  -smp 2 \
+  -m 1024 \
+  -kernel build/output/Image \
+  -initrd build/output/initramfs.cpio.gz \
+  -append "root=/dev/ram rw console=ttyAMA0 console=tty0" \
+  -serial stdio \
+  -display none \
+  -no-reboot
 ```
 
-### 2. Build Components
+### What Each Option Does
 
-```bash
-make                    # Build all
-make abinstein-core     # Build core library
-make abinstein-hal      # Build HAL
-make abinstein-services # Build services
-```
+- `-machine virt` - QEMU ARM64 virtual machine platform
+- `-cpu cortex-a53` - Emulate ARM Cortex-A53 processor (used in Galaxy A20e)
+- `-smp 2` - 2 CPU cores
+- `-m 1024` - 1024 MB RAM
+- `-kernel` - Path to compiled Linux kernel
+- `-initrd` - Path to initial RAM filesystem
+- `-append` - Kernel boot parameters
+- `-serial stdio` - Serial console output to terminal
+- `-display none` - No GUI window (headless mode)
+- `-no-reboot` - Don't auto-reboot on kernel panic
 
-### 3. Check Build Status
+### Exit QEMU
 
-```bash
-ctest --output-on-failure  # Run tests
-```
-
-## Cross-Compilation Details
-
-### Toolchain File
-
-Location: `toolchain/abinstein-aarch64.cmake`
-
-Defines:
-- ARM64 compilers (gcc, g++)
-- Compiler flags
-- Sysroot path
-- Search paths for libraries
-
-### Compiler Flags
-
-```cmake
--mcpu=generic          # Generic ARM64 CPU
--mtune=generic+crc     # Tuning for ARM64+CRC
--O2                    # Release optimization
--g                     # Debug symbols (debug build)
-```
-
-## Sysroot Management
-
-The sysroot contains ARM64 libraries and headers:
-
-```bash
-# Setup sysroot (if needed manually)
-mkdir -p sysroot
-aarch64-linux-gnu-sysroot-setup.sh  # Script to populate sysroot
-```
-
-## Environment Variables
-
-```bash
-# Override cross compiler
-export CC=aarch64-linux-gnu-gcc
-export CXX=aarch64-linux-gnu-g++
-
-# Set sysroot
-export SYSROOT=/path/to/sysroot
-
-# Build type
-export CMAKE_BUILD_TYPE=Release
-```
+Press `Ctrl+A` then `X` to exit.
 
 ## Troubleshooting
 
-### "Compiler not found"
+### Issue: "aarch64-linux-gnu-gcc: command not found"
 
+**Solution**: Install ARM64 toolchain
 ```bash
-sudo apt install gcc-aarch64-linux-gnu
+sudo apt-get install gcc-aarch64-linux-gnu
 ```
 
-### "CMake toolchain file not found"
+### Issue: "qemu-system-aarch64: command not found"
 
-Ensure you're in the project root directory when running build scripts.
-
-### "sysroot: No such file"
-
-The sysroot is created automatically. If missing, run:
-
+**Solution**: Install QEMU
 ```bash
-./build_os.sh toolchain
+sudo apt-get install qemu-system-arm
 ```
 
-### "QEMU not found"
+### Issue: Kernel build fails with "CONFIG_STATIC_LIBGCC not found"
 
+**Solution**: Your kernel version is too old. The script uses kernel 6.1.92 LTS which supports this. Try cleaning:
 ```bash
-sudo apt install qemu-system-arm64
+./build_os.sh clean
+./build_os.sh qemu
 ```
 
-## Build Performance
+### Issue: Build is very slow
 
-### Parallel Compilation
+**Reason**: First build downloads and compiles ~200MB source
+- Subsequent boots will use cached sources
+- Compilation uses all CPU cores automatically
+- Check your internet speed if download is slow
 
+### Issue: "Out of disk space" error
+
+**Solution**: Clean previous builds
 ```bash
-make -j$(nproc)  # Use all CPU cores
+./build_os.sh clean
+```
+This frees ~2GB. You need at least 3GB free disk space for full build.
+
+### Issue: Boot hangs or kernel panic
+
+**Check the logs**:
+```bash
+cat build/logs/kernel-build.log
+cat build/logs/busybox-build.log
 ```
 
-### Ccache (Optional)
-
-Speed up recompilation:
-
+**Try rebuilding**:
 ```bash
-sudo apt install ccache
-export CC=ccache gcc
-export CXX=ccache g++
+./build_os.sh clean
+./build_os.sh qemu --verbose
 ```
 
-## Continuous Integration
+## Performance Tips
 
-The build system is designed for CI/CD:
+### Speed Up Kernel Compilation
 
+Edit `build_os.sh` and increase parallel jobs:
 ```bash
-# CI-friendly build
-./build_os.sh qemu --verbose 2>&1 | tee build.log
-echo $? # Exit code
+make -j$(nproc) ...  # Default: uses all cores
 ```
 
-Expected exit code: 0 for success, non-zero for failure.
+For manual control:
+```bash
+make -j8 ...  # Use 8 parallel jobs
+```
+
+### Enable Caching
+
+The script automatically caches:
+- Downloaded kernel source
+- Downloaded BusyBox source
+- Downloaded cross-compiler packages
+
+Subsequent builds will skip downloads.
+
+### Reduce QEMU Memory Usage
+
+Edit `build_os.sh`:
+```bash
+QEMU_MEMORY="512"  # Reduce from 1024 to 512 MB
+```
+
+## System Specifications
+
+### Linux Kernel
+- Version: 6.1.92 LTS (Long Term Support)
+- Architecture: ARM64 (aarch64)
+- Target: QEMU virt platform (generic)
+- Kernel size: ~15-20 MB uncompressed
+
+### BusyBox
+- Version: 1.36.1
+- Built as: Static binary (no dependencies)
+- Provides: Essential Linux utilities (sh, ls, cat, mount, etc.)
+- Size: ~1-2 MB
+
+### QEMU Emulation
+- CPU: ARM Cortex-A53 (same as Galaxy A20e)
+- Cores: 2
+- RAM: 1024 MB
+- No persistent storage (RAM-only boot)
+
+## Next Steps
+
+### After First Boot
+
+1. **Explore the system**
+   ```bash
+   ls /
+   cat /proc/cpuinfo
+   mount
+   ```
+
+2. **Test utilities**
+   ```bash
+   echo "ABINSTEIN works!"
+   date
+   ps aux
+   ```
+
+3. **Check documentation**
+   - Read `docs/ARCHITECTURE.md` for system design
+   - Read `docs/NETWORK.md` for networking (next phase)
+   - Read `docs/A20E.md` for hardware target
+
+### Development
+
+1. **Add custom applications**
+   - Place source in `apps/`
+   - Add to `CMakeLists.txt`
+   - Rebuild with `./build_os.sh qemu`
+
+2. **Modify kernel**
+   - Edit `build/sources/linux-6.1.92/.config`
+   - Recompile with `./build_os.sh kernel`
+
+3. **Add system services**
+   - Create in `services/src/`
+   - Use D-Bus for IPC
+   - Configure in rootfs `/etc/`
+
+## Build System Features
+
+✓ **Automated Downloads** - Fetches from official sources (kernel.org, busybox.net)
+✓ **Caching** - Reuses downloaded sources
+✓ **Cross-Compilation** - Full ARM64 toolchain support
+✓ **Colored Output** - Easy status tracking
+✓ **Logging** - Complete build logs for debugging
+✓ **Requirement Checking** - Verifies dependencies before build
+✓ **Error Handling** - Stops on any compilation error
+✓ **Parallel Compilation** - Uses all available CPU cores
+✓ **QEMU Integration** - One-command boot
+✓ **No Android Dependencies** - Pure Linux stack
+
+## Disk Space Requirements
+
+- Downloaded sources cache: ~300 MB
+- Extracted sources: ~800 MB
+- Build artifacts: ~500 MB
+- **Total**: ~1.6 GB minimum
+- **Recommended**: 3+ GB free space
+
+## Network Requirements
+
+- First build downloads ~200 MB:
+  - Linux kernel 6.1.92: ~120 MB
+  - BusyBox 1.36.1: ~2 MB
+  - Build dependencies
+- Subsequent builds: None (uses cache)
+- Minimum bandwidth: 1 Mbps (reasonable)
+
+## Estimated Build Times
+
+- First build (full): **8-12 minutes**
+  - Download: 1-2 min (depends on internet)
+  - Kernel compile: 5-8 min
+  - Rootfs/initramfs: 30 sec
+  - QEMU launch: 10 sec
+
+- Subsequent boots: **10-15 seconds**
+  - Skips downloads and compilation
+  - Straight to QEMU launch
+
+## See Also
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - System design
+- [ROADMAP.md](../ROADMAP.md) - Development phases
+- [BROWSER.md](./BROWSER.md) - Web browser (WPE WebKit)
+- [APPSTORE.md](./APPSTORE.md) - App distribution
+- [A20E.md](./A20E.md) - Samsung Galaxy A20e target
