@@ -1,10 +1,8 @@
-# ABINSTEIN OS Diagnostic & Build Tools
+# ABINSTEIN OS Tools & Utilities
+# Build tools, diagnostics, debugging utilities
 
-file(GLOB TOOLS_SOURCES "*.c" "*.cpp")
+cmake_minimum_required(VERSION 3.20)
 
-if(TOOLS_SOURCES)
-    # TODO: Create tool executables
-    message(STATUS "Tools: ENABLED")
-else()
-    message(STATUS "Tools: No sources found (placeholder)")
-endif()
+file(GLOB TOOLS_SOURCES "src/*.c" "src/*.cpp")
+
+message(STATUS "Tools: Framework created (diagnostic tools placeholders)")
