@@ -1,110 +1,148 @@
 # ABINSTEIN OS
 
-An independent Linux-based mobile operating system for ARM64 architecture.
+ABINSTEIN OS is an independent Linux-based mobile operating system designed for ARM64 devices. It is built around a modular architecture, hardware abstraction, Qt/QML-based interfaces, and a mobile-first system design intended for emulation, device experimentation, and future real hardware support.
 
 ## Vision
 
-ABINSTEIN OS is a modern, modular mobile OS built from scratch with:
+ABINSTEIN OS is a modern mobile operating system designed from the ground up with:
 
-- **Kernel**: Linux ARM64/aarch64
-- **Display**: Wayland + Qt 6/QML
-- **Hardware Support**: Wi-Fi, Bluetooth, audio, camera, modem, sensors
-- **Applications**: Native mobile apps with Qt/QML
-- **Connectivity**: Full networking stack with state management
-- **Security**: Privilege separation, secure IPC via D-Bus
-- **Package Management**: Abinstein package manager with OTA support
-- **Innovation**: Quantum/Qubit simulator core
+- Kernel: Linux ARM64 / aarch64
+- Display stack: Wayland + Qt 6 / QML
+- Hardware support: Wi-Fi, Bluetooth, audio, camera, modem, sensors
+- Applications: native mobile apps with Qt/QML
+- Connectivity: full networking stack with state management
+- Security: privilege separation and secure IPC via D-Bus
+- Package management: custom package manager with OTA support
+- Innovation: quantum / qubit simulation core
 
 ## Target Platforms
 
-1. **QEMU** (ARM64) - Primary development target
-2. **Samsung Galaxy A20e** - Future hardware target (requires hardware verification)
-3. **Pixel display / Pixel screen evaluation** - Prototype display integration track for mobile display work
+1. QEMU (ARM64) - Primary development target
+2. Samsung Galaxy A20e - Real hardware evaluation target
+3. Pixel-style display / pixel screen evaluation - Prototype UI and display integration track
 
 ## Hardware Catalog
 
-The project currently tracks the following hardware families and components:
+The project currently tracks the following hardware families and components.
 
-### Development / Emulation hardware
-- **QEMU ARM64 virtual platform**
-- **Generic ARM64 SoC emulation**
-- **Virtual framebuffer / virtual display**
-- **Virtual NIC / networking emulation**
+### Development / Emulation Hardware
+- QEMU ARM64 virtual platform
+- Generic ARM64 SoC emulation
+- Virtual framebuffer / virtual display
+- Virtual NIC / networking emulation
 
-### Mobile hardware targets
-- **Samsung Galaxy A20e**
-  - SoC: MediaTek Helio P22
+### Mobile Hardware Targets
+- Samsung Galaxy A20e
+  - SoC: Exynos 7885
   - CPU: ARM Cortex-A53 (octa-core)
   - RAM: 3GB / 4GB
   - Storage: 32GB / 64GB + microSD
+  - Display: 6.4-inch Infinity-V display
+  - Connectivity: Wi-Fi, Bluetooth, LTE, GPS, sensors
   - Status: future target, verification required
-- **Pixel screen / Pixel display prototype track**
-  - Includes Pixel-class display panels and associated touch/display stack evaluation
+- Pixel screen / Pixel display prototype track
+  - Includes pixel-class display panels and display stack evaluation
   - Status: prototype / evaluation phase, not yet verified as supported hardware
 
-### Hardware component families
-- **Display panels**: AMOLED/LCD/OLED mobile screens, including Pixel-style panel evaluations
-- **Touchscreens**: capacitive touch controllers and calibration paths
-- **Wi-Fi radios**: IEEE 802.11 interfaces
-- **Bluetooth radios**: HCI adapters and pairing stacks
-- **Audio devices**: speakers, microphones, audio codecs
-- **Cameras**: front/rear sensor interfaces and ISP interaction
-- **Modems**: cellular modem integration paths
-- **Sensors**: accelerometer, gyroscope, proximity, ambient light
-- **Power / battery**: charging, battery monitoring, suspend/resume
-
-## Pixel Screen Notes
-
-The Pixel screen work is part of the hardware evaluation stream for display integration. This is a documented prototype/evaluation path rather than a claimed fully supported device. The display stack is expected to be validated through the Wayland + compositor layer before being marked as production-ready.
-
-## Self-Healing Boot & Repair Policy
-
-If ABINSTEIN OS fails to boot, fails to initialize, or does not open the main UI, the system shall attempt self-repair before falling back to recovery mode.
-
-### Boot recovery sequence
-1. **Integrity check**: Verify kernel image, initramfs, device tree, rootfs metadata, system configuration files, and bootloader state.
-2. **Filesystem validation**: Run checks on the root partition and any mounted system volumes before continuing.
-3. **Rollback to last known-good state**: If corruption or mismatch is detected, boot the previous healthy snapshot or recovery image.
-4. **Repair pass**: Restore missing or damaged system files, regenerate runtime symlinks, reinitialize key services, and reapply the last valid configuration.
-5. **Recovery environment fallback**: If the normal boot path is still broken, switch to the minimal recovery system with a shell and diagnostics.
-6. **Auto-retry startup**: After a successful repair, the system automatically reboots and attempts to open the normal UI again.
-7. **Manual recovery**: If repair fails, the system opens the recovery shell and pauses the normal boot flow until manual intervention is performed.
-
-### Repair rules
-- Repair must preserve user data and user-installed settings whenever possible.
-- Do not perform destructive reinstall actions without explicit confirmation.
-- Prefer rollback to the most recent known-good system image over rebuilding from scratch.
-- Recovery, repair, and rollback actions must remain available even if the graphical shell fails to open.
-- The system must clearly separate experimental repair steps from verified production-safe steps.
-
-### Trigger conditions
-- Kernel panic or failed init process start
-- Missing or corrupt rootfs files
-- Broken device tree or boot configuration
-- Wayland compositor startup failure
-- Qt/QML shell crash loop
-- Recovery mode or shell startup request after failed boot
+### Hardware Component Families
+- Display panels: AMOLED / LCD / OLED mobile displays, including pixel-style panel evaluations
+- Touchscreens: capacitive touch controllers and calibration paths
+- Wi-Fi radios: IEEE 802.11 interfaces
+- Bluetooth radios: HCI adapters and pairing stacks
+- Audio devices: speakers, microphones, and audio codecs
+- Camera modules: rear and front imaging sensors
+- Sensors: proximity, accelerometer, gyroscope, ambient light
+- Modems: LTE / cellular control paths
+- Storage: eMMC / UFS / flash-backed device storage
+- Power: battery, PMIC, charging, thermal management
 
 ## Project Status
 
-- [ ] Kernel compilation (ARM64)
-- [ ] Rootfs construction
+- [x] Repository initialization
+- [x] Project structure
+- [x] Build system foundation (CMake)
+- [ ] ARM64 toolchain setup
+- [ ] Linux kernel ARM64 configuration
+- [ ] Device tree framework
+- [ ] Boot image generation
+- [ ] Root filesystem construction
 - [ ] Initramfs creation
-- [ ] QEMU boot
-- [ ] D-Bus system
-- [ ] Wayland compositor
-- [ ] Qt 6/QML shell
-- [ ] Launcher
-- [ ] Settings
-- [ ] Networking
-- [ ] Wi-Fi connectivity detection
+- [ ] QEMU boot validation
+- [ ] D-Bus integration
+- [ ] Wayland compositor foundation
+- [ ] Qt 6 / QML shell
+- [ ] Application framework
+- [ ] Browser app foundation
+- [ ] Camera system foundation
+- [ ] Network stack
+- [ ] Wi-Fi support validation
 - [ ] Bluetooth integration
 - [ ] Package manager
-- [ ] OTA updates
+- [ ] OTA support
 - [ ] Recovery system
 - [ ] Quantum core
 - [ ] Security hardening
 - [ ] Full testing suite
+
+## Architecture
+
+```text
+Applications & Services
+    ↓
+Qt 6 / QML Framework
+    ↓
+Wayland Compositor
+    ↓
+D-Bus System Bus
+    ↓
+System Services
+    ↓
+Hardware Abstraction Layer (HAL)
+    ↓
+Linux Kernel (ARM64)
+    ↓
+Hardware
+```
+
+## Key Components
+
+### 1. Linux Kernel
+- ARM64 / aarch64 support
+- Device tree support
+- DRM/KMS graphics support
+- Mobile-friendly kernel configuration
+- Modular driver design for portability
+
+### 2. Hardware Abstraction Layer (HAL)
+- Unified platform interface for hardware access
+- Device-specific implementations for QEMU and A20e
+- Clean separation between userspace and hardware drivers
+- Support for display, input, power, and sensor control
+
+### 3. D-Bus System Bus
+- Central IPC backbone
+- Service registration and discovery
+- Device state tracking
+- System service communication
+
+### 4. Wayland + Qt 6 / QML
+- Mobile UI framework
+- Modern windowing and compositing model
+- App shell and launcher support
+- Flexible interface development for embedded devices
+
+### 5. Native Mobile Applications
+- Browser
+- App store
+- Camera and gallery
+- Settings and system tools
+- Core services and user-facing system apps
+
+### 6. Networking and Sensor Stack
+- Wi-Fi management
+- Bluetooth interfaces
+- Cellular / modem abstraction
+- Sensor polling and event handling
 
 ## Quick Start
 
@@ -132,149 +170,131 @@ If ABINSTEIN OS fails to boot, fails to initialize, or does not open the main UI
 ./build_os.sh test
 ```
 
-## Architecture
+## Samsung A20e Flashing Guide
 
+ABINSTEIN OS is designed to be flashed to supported ARM64 devices, including the Samsung Galaxy A20e, using raw partition images instead of standard Samsung Odin firmware packages.
+
+### Correct Flash Method
+
+Use one of the following:
+
+- fastboot with raw `.img` files
+- Heimdall with raw partition images
+
+Do not use Odin for a generic custom Linux OS ZIP package unless Samsung firmware packaging is explicitly provided.
+
+### Example Fastboot Flow
+
+```bash
+adb reboot bootloader
+fastboot devices
+fastboot flashing unlock
+fastboot flash recovery recovery.img
+fastboot flash boot boot.img
+fastboot flash system system.img
+fastboot flash vendor vendor.img
+fastboot -w
+fastboot reboot
 ```
-Hardware
-  ↓
-Linux Kernel (ARM64)
-  ↓
-HAL (Hardware Abstraction Layer)
-  ↓
-System Services (D-Bus, networking, power, audio)
-  ↓
-Wayland Compositor
-  ↓
-Qt 6 / QML Shell & Applications
+
+### Example Heimdall Flow
+
+```bash
+heimdall flash \
+  --RECOVERY recovery.img \
+  --BOOT boot.img \
+  --SYSTEM system.img \
+  --VENDOR vendor.img
 ```
 
 ## Directory Structure
 
-```
+```text
 abinstein-os/
-├── boot/           # Boot configuration & u-boot
-├── kernel/         # Linux kernel ARM64 config
-├── device/         # Device-specific configs
-├── toolchain/      # ARM64 cross-compilation toolchain
-├── rootfs/         # Root filesystem structure
-├── initramfs/      # Initial RAM filesystem
-├── core/           # Core system libraries
-├── hal/            # Hardware Abstraction Layer
-├── services/       # System services
-├── network/        # Networking & Wi-Fi
-├── bluetooth/      # Bluetooth subsystem
-├── audio/          # Audio system (ALSA/PipeWire)
-├── camera/         # Camera framework
-├── modem/          # Modem interface
-├── display/        # Display management
-├── input/          # Input handling
-��── compositor/     # Wayland compositor
-├── shell/          # Mobile UI shell
-├── launcher/       # App launcher
-├── ui/             # Common UI components
-├── apps/           # Native applications
-├── security/       # Security framework
-├── package-manager/# Package management system
-├── updater/        # OTA update system
-├── recovery/       # Recovery environment
-├── quantum/        # Quantum/Qubit simulator
-├── qemu/           # QEMU-specific configs
-├── tools/          # Diagnostic & build tools
-├── tests/          # Test suite
-├── docs/           # Documentation
-├── scripts/        # Helper scripts
-├── build/          # Build output (generated)
-├── CMakeLists.txt  # Main build configuration
-├── README.md       # This file
-├── ROADMAP.md      # Development roadmap
-├── docs/HARDWARE.md # Hardware catalog and device notes
-└── docs/RECOVERY.md # Recovery procedures and repair policy
+├── apps/            # Native mobile applications
+├── camera/          # Camera subsystem
+├── core/            # Core system libraries and utilities
+├── docs/            # Documentation and architecture notes
+├── gallery/         # Media gallery
+├── hal/             # Hardware abstraction layer
+├── initramfs/       # Initial RAM filesystem
+├── kernel/          # ARM64 kernel tree and config
+├── network/         # Networking stack and connectivity
+├── quantum/         # Quantum / qubit subsystem
+├── rootfs/          # Root filesystem tree
+├── scripts/         # Utility scripts
+├── services/        # System daemons and services
+├── shell/           # Mobile shell and UI shell parts
+├── tests/           # Validation and regression tests
+├── toolchain/       # ARM64 cross-compilation toolchain
+├── tools/           # Utility tools
+├── build_os.sh      # Main build script
+├── CMakeLists.txt   # Top-level build configuration
+├── README.md        # Project overview
+├── ROADMAP.md       # Development roadmap
+└── LICENSE          # License details if present
 ```
 
-## Documentation
+## Roadmap
 
-- **[ROADMAP.md](./ROADMAP.md)** - Development roadmap and milestones
-- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System architecture
-- **[docs/HARDWARE.md](./docs/HARDWARE.md)** - Hardware catalog and device support notes
-- **[docs/RECOVERY.md](./docs/RECOVERY.md)** - Recovery and repair procedures
-- **[docs/BUILD.md](./docs/BUILD.md)** - Build system documentation
-- **[docs/BOOT.md](./docs/BOOT.md)** - Boot process
-- **[docs/NETWORK.md](./docs/NETWORK.md)** - Networking subsystem
-- **[docs/WIFI.md](./docs/WIFI.md)** - Wi-Fi implementation & connectivity state
-- **[docs/SECURITY.md](./docs/SECURITY.md)** - Security framework
-- **[docs/TESTING.md](./docs/TESTING.md)** - Testing strategy
-- **[docs/RECOVERY.md](./docs/RECOVERY.md)** - Recovery system
-- **[docs/OTA.md](./docs/OTA.md)** - OTA update mechanism
+### Phase 1: Foundation
+- Repository and project structure
+- Build system setup
+- ARM64 toolchain
+- Kernel and boot basics
+- Rootfs and initramfs
 
-## Build Requirements
+### Phase 2: Hardware Abstraction and Services
+- HAL design
+- D-Bus service framework
+- Device manager
+- Networking and connectivity services
+- Sensor and power management
 
-- CMake 3.20+
-- GCC/Clang with ARM64 support
-- Linux kernel headers (ARM64)
-- Standard build tools (make, git)
-- QEMU with ARM64 support (for emulation)
+### Phase 3: Display, Graphics, and Compositor
+- Wayland support
+- Compositor implementation
+- Input and gesture handling
+- Qt 6 + QML integration
 
-## Absolute Rules
+### Phase 4: Mobile UI and Applications
+- Launcher and status bar
+- Settings app
+- Browser app
+- Camera and gallery
+- App store and package manager
 
-1. **Never delete working functionality** - Preserve existing implementations
-2. **Never rewrite unnecessarily** - Modify only what needs fixing
-3. **Maintain modular architecture** - Keep layers separate
-4. **Mark reality accurately** - IMPLEMENTED vs PARTIAL vs EXPERIMENTAL vs UNSUPPORTED
-5. **Never fake hardware support** - Unsupported features must be clearly marked
-6. **No destructive auto-operations** - Require explicit user confirmation
-7. **Preserve escape routes** - Always maintain path to restore system
-8. **Test everything** - No untested code in main branch
-9. **No Android dependencies** - Pure Linux only
-10. **No Chromium** - Use WPE WebKit for browser
+### Phase 5: Production Readiness
+- Stability and performance tuning
+- Hardware validation
+- Security review and hardening
+- OTA update pipeline
+- Full test coverage
 
-## Hardware Support Status
+## Why ABINSTEIN OS?
 
-See individual subsystem documentation for detailed hardware support matrices.
+ABINSTEIN OS is designed for those who want an independent mobile operating system that is:
 
-### QEMU (ARM64)
-- **Status**: Primary development target
-- **CPU**: Generic ARM64
-- **Display**: QEMU framebuffer + Wayland
-- **Networking**: QEMU virtual NIC
+- open and configurable
+- Linux-first
+- ARM64-focused
+- modular and extensible
+- suitable for experimentation, porting, and custom hardware development
 
-### Samsung Galaxy A20e
-- **Status**: Future hardware target
-- **SoC**: MediaTek Helio P22
-- **CPU**: ARM Cortex-A53 (octa-core)
-- **RAM**: 3GB / 4GB variants
-- **Storage**: 32GB / 64GB internal + microSD
-- **Note**: Real hardware verification required before claiming full support
-
-### Pixel display / Pixel screen evaluation
-- **Status**: Prototype / evaluation stage
-- **Use case**: Display stack, touch integration, and compositor validation
-- **Note**: Hardware is being tracked as a display evaluation target, not full support
+It combines modern mobile OS design patterns with embedded system flexibility, making it ideal as a prototype mobile platform and a learning-centered Linux OS project.
 
 ## Contributing
 
-1. Create feature branch
-2. Implement changes while preserving working code
-3. Write tests for new functionality
-4. Update documentation
-5. Mark implementation status clearly
-6. Submit for review
+Contributions are welcome in the following areas:
 
-## License
+- kernel and boot configuration
+- HAL and device support
+- D-Bus service design
+- Wayland / compositor work
+- Qt 6 / QML shell
+- networking and device drivers
+- testing and CI
 
-TBD - Linux kernel components follow GPL v2+, application framework to be determined.
+## Final Note
 
-## Status Summary
-
-**Current Phase**: Project initialization and infrastructure setup
-
-**Next Steps**:
-1. Set up ARM64 cross-compilation toolchain
-2. Configure Linux kernel for ARM64 QEMU
-3. Build initial rootfs
-4. Create initramfs and boot infrastructure
-5. Establish D-Bus system
-6. Integrate Wayland + Qt 6
-
----
-
-*ABINSTEIN OS - Building the future of independent mobile computing*
+ABINSTEIN OS is still in early-stage development, but it is structured around a serious mobile OS architecture with real hardware targets, proper service separation, and a roadmap toward a complete ARM64-based mobile environment.
