@@ -59,21 +59,31 @@ The Pixel screen work is part of the hardware evaluation stream for display inte
 
 ## Self-Healing Boot & Repair Policy
 
-If ABINSTEIN OS does not start or does not open correctly, the system must attempt to repair itself before falling back to manual recovery.
+If ABINSTEIN OS fails to boot, fails to initialize, or does not open the main UI, the system shall attempt self-repair before falling back to recovery mode.
 
-### Recovery flow
-1. **Boot check**: Verify kernel, initramfs, rootfs, and device tree integrity.
-2. **Repair attempt**: Automatically restore missing or corrupted system files.
-3. **Rollback**: Load the most recent known-good system image or snapshot.
-4. **Recovery boot**: Enter a minimal recovery environment if a clean boot is not possible.
-5. **Auto restart**: Retry startup after a successful repair.
-6. **Manual fallback**: If repair fails, open the recovery shell to allow manual diagnosis and repair.
+### Boot recovery sequence
+1. **Integrity check**: Verify kernel image, initramfs, device tree, rootfs metadata, system configuration files, and bootloader state.
+2. **Filesystem validation**: Run checks on the root partition and any mounted system volumes before continuing.
+3. **Rollback to last known-good state**: If corruption or mismatch is detected, boot the previous healthy snapshot or recovery image.
+4. **Repair pass**: Restore missing or damaged system files, regenerate runtime symlinks, reinitialize key services, and reapply the last valid configuration.
+5. **Recovery environment fallback**: If the normal boot path is still broken, switch to the minimal recovery system with a shell and diagnostics.
+6. **Auto-retry startup**: After a successful repair, the system automatically reboots and attempts to open the normal UI again.
+7. **Manual recovery**: If repair fails, the system opens the recovery shell and pauses the normal boot flow until manual intervention is performed.
 
 ### Repair rules
-- Never destroy user data during automatic repair.
-- Prefer rollback to a last known-good state over destructive reinstallation.
-- Keep recovery tools available even if the normal UI fails to open.
-- Clearly mark all experimental repair actions as temporary until verified.
+- Repair must preserve user data and user-installed settings whenever possible.
+- Do not perform destructive reinstall actions without explicit confirmation.
+- Prefer rollback to the most recent known-good system image over rebuilding from scratch.
+- Recovery, repair, and rollback actions must remain available even if the graphical shell fails to open.
+- The system must clearly separate experimental repair steps from verified production-safe steps.
+
+### Trigger conditions
+- Kernel panic or failed init process start
+- Missing or corrupt rootfs files
+- Broken device tree or boot configuration
+- Wayland compositor startup failure
+- Qt/QML shell crash loop
+- Recovery mode or shell startup request after failed boot
 
 ## Project Status
 
@@ -158,7 +168,7 @@ abinstein-os/
 ├── modem/          # Modem interface
 ├── display/        # Display management
 ├── input/          # Input handling
-├── compositor/     # Wayland compositor
+��── compositor/     # Wayland compositor
 ├── shell/          # Mobile UI shell
 ├── launcher/       # App launcher
 ├── ui/             # Common UI components
@@ -177,7 +187,8 @@ abinstein-os/
 ├── CMakeLists.txt  # Main build configuration
 ├── README.md       # This file
 ├── ROADMAP.md      # Development roadmap
-└── docs/HARDWARE.md # Hardware catalog and device notes
+├── docs/HARDWARE.md # Hardware catalog and device notes
+└── docs/RECOVERY.md # Recovery procedures and repair policy
 ```
 
 ## Documentation
@@ -185,6 +196,7 @@ abinstein-os/
 - **[ROADMAP.md](./ROADMAP.md)** - Development roadmap and milestones
 - **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System architecture
 - **[docs/HARDWARE.md](./docs/HARDWARE.md)** - Hardware catalog and device support notes
+- **[docs/RECOVERY.md](./docs/RECOVERY.md)** - Recovery and repair procedures
 - **[docs/BUILD.md](./docs/BUILD.md)** - Build system documentation
 - **[docs/BOOT.md](./docs/BOOT.md)** - Boot process
 - **[docs/NETWORK.md](./docs/NETWORK.md)** - Networking subsystem
