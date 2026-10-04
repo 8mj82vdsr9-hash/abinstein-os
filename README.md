@@ -57,6 +57,24 @@ The project currently tracks the following hardware families and components:
 
 The Pixel screen work is part of the hardware evaluation stream for display integration. This is a documented prototype/evaluation path rather than a claimed fully supported device. The display stack is expected to be validated through the Wayland + compositor layer before being marked as production-ready.
 
+## Self-Healing Boot & Repair Policy
+
+If ABINSTEIN OS does not start or does not open correctly, the system must attempt to repair itself before falling back to manual recovery.
+
+### Recovery flow
+1. **Boot check**: Verify kernel, initramfs, rootfs, and device tree integrity.
+2. **Repair attempt**: Automatically restore missing or corrupted system files.
+3. **Rollback**: Load the most recent known-good system image or snapshot.
+4. **Recovery boot**: Enter a minimal recovery environment if a clean boot is not possible.
+5. **Auto restart**: Retry startup after a successful repair.
+6. **Manual fallback**: If repair fails, open the recovery shell to allow manual diagnosis and repair.
+
+### Repair rules
+- Never destroy user data during automatic repair.
+- Prefer rollback to a last known-good state over destructive reinstallation.
+- Keep recovery tools available even if the normal UI fails to open.
+- Clearly mark all experimental repair actions as temporary until verified.
+
 ## Project Status
 
 - [ ] Kernel compilation (ARM64)
@@ -147,13 +165,13 @@ abinstein-os/
 ├── apps/           # Native applications
 ├── security/       # Security framework
 ├── package-manager/# Package management system
-├── updater/       # OTA update system
+├── updater/        # OTA update system
 ├── recovery/       # Recovery environment
 ├── quantum/        # Quantum/Qubit simulator
 ├── qemu/           # QEMU-specific configs
 ├── tools/          # Diagnostic & build tools
 ├── tests/          # Test suite
-���── docs/           # Documentation
+├── docs/           # Documentation
 ├── scripts/        # Helper scripts
 ├── build/          # Build output (generated)
 ├── CMakeLists.txt  # Main build configuration
