@@ -19,6 +19,43 @@ ABINSTEIN OS is a modern, modular mobile OS built from scratch with:
 
 1. **QEMU** (ARM64) - Primary development target
 2. **Samsung Galaxy A20e** - Future hardware target (requires hardware verification)
+3. **Pixel display / Pixel screen evaluation** - Prototype display integration track for mobile display work
+
+## Hardware Catalog
+
+The project currently tracks the following hardware families and components:
+
+### Development / Emulation hardware
+- **QEMU ARM64 virtual platform**
+- **Generic ARM64 SoC emulation**
+- **Virtual framebuffer / virtual display**
+- **Virtual NIC / networking emulation**
+
+### Mobile hardware targets
+- **Samsung Galaxy A20e**
+  - SoC: MediaTek Helio P22
+  - CPU: ARM Cortex-A53 (octa-core)
+  - RAM: 3GB / 4GB
+  - Storage: 32GB / 64GB + microSD
+  - Status: future target, verification required
+- **Pixel screen / Pixel display prototype track**
+  - Includes Pixel-class display panels and associated touch/display stack evaluation
+  - Status: prototype / evaluation phase, not yet verified as supported hardware
+
+### Hardware component families
+- **Display panels**: AMOLED/LCD/OLED mobile screens, including Pixel-style panel evaluations
+- **Touchscreens**: capacitive touch controllers and calibration paths
+- **Wi-Fi radios**: IEEE 802.11 interfaces
+- **Bluetooth radios**: HCI adapters and pairing stacks
+- **Audio devices**: speakers, microphones, audio codecs
+- **Cameras**: front/rear sensor interfaces and ISP interaction
+- **Modems**: cellular modem integration paths
+- **Sensors**: accelerometer, gyroscope, proximity, ambient light
+- **Power / battery**: charging, battery monitoring, suspend/resume
+
+## Pixel Screen Notes
+
+The Pixel screen work is part of the hardware evaluation stream for display integration. This is a documented prototype/evaluation path rather than a claimed fully supported device. The display stack is expected to be validated through the Wayland + compositor layer before being marked as production-ready.
 
 ## Project Status
 
@@ -110,29 +147,30 @@ abinstein-os/
 ├── apps/           # Native applications
 ├── security/       # Security framework
 ├── package-manager/# Package management system
-├── updater/        # OTA update system
+├── updater/       # OTA update system
 ├── recovery/       # Recovery environment
 ├── quantum/        # Quantum/Qubit simulator
 ├── qemu/           # QEMU-specific configs
 ├── tools/          # Diagnostic & build tools
 ├── tests/          # Test suite
-├── docs/           # Documentation
+���── docs/           # Documentation
 ├── scripts/        # Helper scripts
 ├── build/          # Build output (generated)
 ├── CMakeLists.txt  # Main build configuration
 ├── README.md       # This file
-└── ROADMAP.md      # Development roadmap
+├── ROADMAP.md      # Development roadmap
+└── docs/HARDWARE.md # Hardware catalog and device notes
 ```
 
 ## Documentation
 
 - **[ROADMAP.md](./ROADMAP.md)** - Development roadmap and milestones
 - **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System architecture
+- **[docs/HARDWARE.md](./docs/HARDWARE.md)** - Hardware catalog and device support notes
 - **[docs/BUILD.md](./docs/BUILD.md)** - Build system documentation
 - **[docs/BOOT.md](./docs/BOOT.md)** - Boot process
 - **[docs/NETWORK.md](./docs/NETWORK.md)** - Networking subsystem
 - **[docs/WIFI.md](./docs/WIFI.md)** - Wi-Fi implementation & connectivity state
-- **[docs/A20E.md](./docs/A20E.md)** - Samsung Galaxy A20e target
 - **[docs/SECURITY.md](./docs/SECURITY.md)** - Security framework
 - **[docs/TESTING.md](./docs/TESTING.md)** - Testing strategy
 - **[docs/RECOVERY.md](./docs/RECOVERY.md)** - Recovery system
@@ -176,6 +214,11 @@ See individual subsystem documentation for detailed hardware support matrices.
 - **RAM**: 3GB / 4GB variants
 - **Storage**: 32GB / 64GB internal + microSD
 - **Note**: Real hardware verification required before claiming full support
+
+### Pixel display / Pixel screen evaluation
+- **Status**: Prototype / evaluation stage
+- **Use case**: Display stack, touch integration, and compositor validation
+- **Note**: Hardware is being tracked as a display evaluation target, not full support
 
 ## Contributing
 
