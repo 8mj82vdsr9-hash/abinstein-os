@@ -1,47 +1,52 @@
 #pragma once
 
-#include <QString>
+#include <QObject>
 #include <QUrl>
-#include <memory>
+#include <QString>
 
-/**
- * ABINSTEIN Browser Engine
- * WPE WebKit Integration
- * Pure Linux WebKit, NO Chromium
- */
-class BrowserEngine {
+class BrowserEngine : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QUrl url READ url NOTIFY urlChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(int loadProgress READ loadProgress NOTIFY loadProgressChanged)
+    Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY canGoBackChanged)
+    Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY canGoForwardChanged)
 
 public:
-    BrowserEngine();
-    ~BrowserEngine();
+    explicit BrowserEngine(QObject* parent = nullptr);
 
-    // Initialize WPE WebKit
-    bool initialize();
+    QUrl url() const;
+    QString title() const;
+    int loadProgress() const;
+    bool canGoBack() const;
+    bool canGoForward() const;
 
-    // Navigation
-    void loadUrl(const QUrl &url);
-    void goBack();
-    void goForward();
+public slots:
+    void load(const QString& rawUrl);
     void reload();
     void stop();
+    void goBack();
+    void goForward();
+    void openHome();
+    void setUrl(const QUrl& url);
+    void setTitle(const QString& title);
+    void setLoadProgress(int progress);
+    void setCanGoBack(bool enabled);
+    void setCanGoForward(bool enabled);
 
-    // Content
-    QString getTitle() const;
-    QString getUrl() const;
-    double getLoadProgress() const;
-    bool isLoading() const;
-
-    // JavaScript execution
-    void executeScript(const QString &script);
-
-    // SSL/TLS
-    bool verifyCertificate();
-
-    // Cache management
-    void clearCache();
-    void clearCookies();
+signals:
+    void urlChanged();
+    void titleChanged();
+    void loadProgressChanged();
+    void canGoBackChanged();
+    void canGoForwardChanged();
 
 private:
-    class Impl;
-    std::unique_ptr<Impl> impl_;
+    QUrl m_url;
+    QString m_title;
+    int m_loadProgress = 0;
+    bool m_canGoBack = false;
+    bool m_canGoForward = false;
+    const QString m_homePage = QStringLiteral("https://example.com");
 };
